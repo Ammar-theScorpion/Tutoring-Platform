@@ -1,1 +1,45 @@
-{% extends "base.html" %}
+{% extends "_base.html" %}
+{%load static%}
+
+    {% block popup %}
+
+        <div id="overlay" class="fixed inset-0 bg-black opacity-50 z-40 hidden"></div>
+
+        <div id="popup" class="z-50 w-9/12 h-3/6 absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 hidden"></div>
+    {% endblock popup %}
+
+
+    {% block layout %}
+
+        {% include '../fragment/common/hero.html' %}
+        {% if posts %}
+            <content x-data="{ mobileSidebarOpen: false }" class="grid grid-cols-2 max-w-7xl mx-auto my-6 px-6">
+                <mobileSidebarNav class="md:hidden col-span-full mx-auto mb-6 z-10 relative">
+                    <a @click="mobileSidebarOpen = !mobileSidebarOpen" class="flex items-center cursor-pointer select-none font-bold hover:bg-gray-200 rounded-lg p-3">
+                        <span>Categories</span>
+                        <img x-bind:class="mobileSidebarOpen && 'rotate-180 duration-300'" class="w-4 ml-1.5" src="https://img.icons8.com/small/32/000000/expand-arrow.png" />
+                    </a>
+                </mobileSidebarNav>
+                <div id="all-posts">
+                    {% for post in posts  %}
+                        {% include './fragment/post/post.html' with post=post %}
+                    {% endfor %}
+                </div>
+                {% include './fragment/home/sidebar.html' %}
+
+            </content>
+            {% else %}
+            <div class="flex flex-col justify-center self-center">
+                <h1 class="self-center py-8">no posts found</h1>
+                <a hx-get=""
+                hx-trigger="click"
+                hx-swap="innerHTML"
+                hx-target="#popup"
+                class="self-center button">create one</a>
+            </div>
+        {% endif %}
+
+    {% endblock %}
+
+</body>
+</html>

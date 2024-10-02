@@ -1,7 +1,10 @@
+from django.contrib.auth import get_user_model
 from django.contrib.auth.models import AbstractUser
+from django.db import models
 from django.db.models import CharField
 from django.urls import reverse
 from django.utils.translation import gettext_lazy as _
+from utils.model import TimeStampModel
 
 
 class User(AbstractUser):
@@ -24,3 +27,12 @@ class User(AbstractUser):
 
         """
         return reverse("users:detail", kwargs={"username": self.username})
+
+
+class Profile(TimeStampModel):
+    user = models.OneToOneField(get_user_model(), on_delete=models.CASCADE)
+    image = models.ImageField(upload_to="avatar/", blank=True, null=True)
+    bio = models.CharField(max_length=300, blank=True)
+
+    def __str__(self) -> str:
+        return self.user.username

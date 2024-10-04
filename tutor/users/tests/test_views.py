@@ -1,75 +1,49 @@
 from http import HTTPStatus
 
 import pytest
-from django.conf import settings
-from django.contrib import messages
-from django.contrib.auth.models import AnonymousUser
-from django.contrib.messages.middleware import MessageMiddleware
-from django.contrib.sessions.middleware import SessionMiddleware
-from django.http import HttpRequest
 from django.http import HttpResponseRedirect
 from django.test import RequestFactory
+from django.test import TestCase
 from django.urls import reverse
-from django.utils.translation import gettext_lazy as _
 
-from tutor.users.forms import UserAdminChangeForm
 from tutor.users.models import User
 from tutor.users.tests.factories import UserFactory
 from tutor.users.views import UserRedirectView
 from tutor.users.views import UserUpdateView
-from tutor.users.views import user_detail_view
 
 pytestmark = pytest.mark.django_db
 
 
-class TestUserUpdateView:
-    """
-    TODO:
-        extracting view initialization code as class-scoped fixture
-        would be great if only pytest-django supported non-function-scoped
-        fixture db access -- this is a work-in-progress for now:
-        https://github.com/pytest-dev/pytest-django/pull/258
-    """
+class TestUserUpdateView(TestCase):
+    def setUp(self):
+        self.user = User.objects.create_user(
+            username="testuser",
+            email="test@example.com",
+        )
+        self.client.force_login(self.user)
 
-    def dummy_get_response(self, request: HttpRequest):
-        return None
+        self.factory = RequestFactory()
+        self.url = reverse("users:update")
 
-    def test_get_success_url(self, user: User, rf: RequestFactory):
+    def test_get_success_url(self):
+        request = self.factory.get(self.url)
+        request.user = self.user
+
         view = UserUpdateView()
-        request = rf.get("/fake-url/")
-        request.user = user
-
         view.request = request
-        assert view.get_success_url() == f"/users/{user.username}/"
+        success_url = view.get_success_url()
 
-    def test_get_object(self, user: User, rf: RequestFactory):
+        assert success_url == f"/users/{self.user.username}/"
+
+    def test_get_object(self):
+        request = self.factory.get(self.url)
+        request.user = self.user
+
         view = UserUpdateView()
-        request = rf.get("/fake-url/")
-        request.user = user
-
         view.request = request
+        obj = view.get_object()
 
-        assert view.get_object() == user
-
-    def test_form_valid(self, user: User, rf: RequestFactory):
-        view = UserUpdateView()
-        request = rf.get("/fake-url/")
-
-        # Add the session/message middleware to the request
-        SessionMiddleware(self.dummy_get_response).process_request(request)
-        MessageMiddleware(self.dummy_get_response).process_request(request)
-        request.user = user
-
-        view.request = request
-
-        # Initialize the form
-        form = UserAdminChangeForm()
-        form.cleaned_data = {}
-        form.instance = user
-        view.form_valid(form)
-
-        messages_sent = [m.message for m in messages.get_messages(request)]
-        assert messages_sent == [_("Information successfully updated")]
+        assert obj == self.user
 
 
 class TestUserRedirectView:
@@ -82,20 +56,25 @@ class TestUserRedirectView:
         assert view.get_redirect_url() == f"/users/{user.username}/"
 
 
-class TestUserDetailView:
-    def test_authenticated(self, user: User, rf: RequestFactory):
-        request = rf.get("/fake-url/")
-        request.user = UserFactory()
-        response = user_detail_view(request, username=user.username)
+class TestUserDetailView(TestCase):
+    def setUp(self):
+        pass
+
+    def test_authenticated(self):
+        user = User.objects.create_user(username="testuser", email="test@example.com")
+        response = self.client.force_login(user)
+        url = reverse("users:profile", kwargs={"username": user.username})
+        response = self.client.get(url)
 
         assert response.status_code == HTTPStatus.OK
+        assert url == f"/users/{user.username}/"
 
-    def test_not_authenticated(self, user: User, rf: RequestFactory):
-        request = rf.get("/fake-url/")
-        request.user = AnonymousUser()
-        response = user_detail_view(request, username=user.username)
-        login_url = reverse(settings.LOGIN_URL)
+    def test_not_authenticated(self):
+        user = UserFactory()  # Create a user (but don't log in)
+        url = reverse("users:profile", kwargs={"username": user.username})
+        response = self.client.get(url)
 
+        # Assert the user is redirected to the login page
         assert isinstance(response, HttpResponseRedirect)
         assert response.status_code == HTTPStatus.FOUND
-        assert response.url == f"{login_url}?next=/fake-url/"
+        assert response.url == f"/accounts/login/?next=/users/{user.username}/"

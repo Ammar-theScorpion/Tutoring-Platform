@@ -35,7 +35,7 @@
                 x-transition:enter-end="opacity-100 translate-y-0 scale-100">
                     <ul class="hoverlist [&>li>a]:justify-end">
                             <li><a hx-get="{% url 'users:profile' user.username %}" hx-target="body" hx-push-url="true" hx-trigger="click" hx-swap="innerHTML">My Profile</a></li>
-                            <li><a href="">Edit Profile</a></li>
+                            <li><a href="{% url 'users:update' %}">Edit Profile</a></li>
                             <li><a href="{% url 'account_logout' %}">Log Out</a></li>
                             {% else %}
 

@@ -4,7 +4,7 @@
     <p>Are you sure you want to delete this post?</p>
   </div>
 
-  <form hx-post="" hx-target="body" hx-trigger="submit delay:500ms" hx-swap="innerHTML">
+  <form hx-post="{% url 'post:delete' post.uuid %}" hx-target="body" hx-trigger="submit delay:500ms" hx-swap="innerHTML">
     {% csrf_token %}
     <button type="submit" class="mt-1">Confirm</button>
     <a onclick="closePopup()" class="button secondaryAction ml-1">Go Back</a>

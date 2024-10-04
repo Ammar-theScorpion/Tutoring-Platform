@@ -7,7 +7,7 @@
       </div>
     </div>
     <figure>
-      <a hx-get="" hx-trigger="click" hx-swap="innerHTML" hx-target="#popup"><img class="w-full" src="{{ post.image }}" /></a>
+      <a hx-get="{% url 'post:details' post.uuid %}" hx-trigger="click" hx-swap="innerHTML" hx-target="#popup"><img class="w-full" src="{{ post.image_url }}" /></a>
     </figure>
     <div class="p-4 pb-2">
       <a class="flex items-center gap-1 mb-4" href="">
@@ -32,8 +32,8 @@
             1
           </div>
           <a href="">Like</a>
-          <a hx-get="" hx-trigger="click" hx-swap="innerHTML" hx-target="#popup">Edit</a>
-          <a hx-get="" hx-trigger="click" hx-swap="innerHTML" hx-target="#popup">Delete</a>
+          <a hx-get="{% url 'post:edit' post.uuid %}" hx-trigger="click" hx-swap="innerHTML" hx-target="#popup">Edit</a>
+          <a hx-get="{% url 'post:delete' post.uuid %}" hx-trigger="click" hx-swap="innerHTML" hx-target="#popup">Delete</a>
         </div>
       </div>
     </div>

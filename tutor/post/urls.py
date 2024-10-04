@@ -3,6 +3,7 @@ from django.urls import path
 from .views import post_create_view
 from .views import post_delete_view
 from .views import post_details_view
+from .views import post_tag_view
 from .views import post_update_view
 
 app_name = "post"
@@ -12,3 +13,10 @@ urlpatterns = [
     path("edit/<pk>/", view=post_update_view, name="edit"),
     path("delete/<pk>/", view=post_delete_view, name="delete"),
 ]
+
+# tags
+tags_url = [
+    path("tag/<str:slug>/", view=post_tag_view, name="tag"),
+]
+
+urlpatterns += tags_url

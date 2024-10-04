@@ -7,8 +7,8 @@ from .models import Post
 class PostCreateForm(ModelForm):
     class Meta:
         model = Post
-        fields = ["title", "body", "image_url"]
-        labels = {"body": "Caption"}
+        fields = ["title", "body", "image_url", "tags"]
+        labels = {"body": "Caption", "tags": "Categories"}
 
         widgets = {
             "body": forms.Textarea(
@@ -18,6 +18,7 @@ class PostCreateForm(ModelForm):
                     "class": "font1 text-4xl",
                 },
             ),
+            "tags": forms.CheckboxSelectMultiple(),
         }
 
 
@@ -25,7 +26,7 @@ class PostUpdateForm(ModelForm):
     class Meta:
         model = Post
         fields = ["title", "body", "image_url"]
-        labels = {"body": "Caption"}
+        labels = {"body": "Caption", "tags": "Categories"}
 
         widgets = {
             "body": forms.Textarea(
@@ -35,4 +36,5 @@ class PostUpdateForm(ModelForm):
                     "class": "font1 text-4xl",
                 },
             ),
+            "tags": forms.CheckboxSelectMultiple(),
         }
